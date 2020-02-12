@@ -1,0 +1,83 @@
+<html>
+<head>
+  <title>Pick My Lottery Numbers</title>
+  <link rel="stylesheet" href="randomNumber.css">
+</head>
+<body onload="makeRequest();">
+
+<script>
+  var req;
+
+  function makeRequest() {
+    if (window.XMLHttpRequest) { 
+        req = new XMLHttpRequest(); 
+        console.log("xml");
+    }
+    else if (window.ActiveXObject) {    	
+        req = new ActiveXObject("Msxml2.XMLHTTP");
+        console.log("activex");
+    }
+    else {
+    	// Ajax not supported
+	return;
+    }
+        
+    req.onreadystatechange = function() {
+      var txt = "";
+      if (this.readyState == 4 && this.status == 200) {
+        var response = this.response;	
+        console.log (response);
+        console.log (response.data.length);
+        code = "";
+        for (var i = 0; i < response.data.length; i++) {
+          console.log (response.data[i]);
+          code += putNumberInBall(response.data[i]);
+        }						
+        document.getElementById("numbers").innerHTML = code;
+      }
+    };
+	
+  }
+
+  function getNumbers() {
+    numRand = document.getElementById ("numRand").value;
+    min = document.getElementById ("min").value;
+    max = document.getElementById ("max").value;
+			
+    req.open("GET", "randomNumberAPI.php?numRand=" + numRand + "&min=" + min + "&max=" + max, true);
+    req.responseType = 'json';
+    req.send();
+
+  }
+
+  function putNumberInBall(number) {
+    return [
+      '<div class="container">',
+        '<img src="lotteryBall.png" alt="Snow" style="width:100%;">',
+        '<div class="centered"><h1 id="answer">',
+        number,
+        '</h1></div>',
+      '</div>'
+    ].join('\n');
+
+  }
+
+  
+</script>
+<h1>Automatic Lottery Number Generator</h1>
+
+<p>How many lottery numbers do you need? <input type = "text" id = "numRand"></input></p>
+<p>What is the minimum value? <input type = "text" id = "min"></input></p>
+<p>What is the maximum value? <input type = "text" id = "max"></input></p>
+<input type = "button" value = "Get your lucky numbers!" onclick = "getNumbers();" />
+
+
+<h1>Here are your lucky numbers!</h1>
+
+
+<div id=numbers>
+</div>
+
+
+</body>
+</html>
